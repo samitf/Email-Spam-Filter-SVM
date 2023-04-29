@@ -1,0 +1,345 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Emails</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+     <style>
+      .tab {
+        display: none;
+      }
+      .tab.active {
+        display: block;
+      }
+      .tab-button {
+        display: inline-block;
+        padding: 10px;
+        margin: 10px;
+        cursor: pointer;
+        background-color: #7286D3;
+        border: 1px solid #7286D3;
+        border-radius: 5px;
+      }
+      .tab-button.active {
+        background-color: #B9F3FC;
+      }
+      .message-text {
+        margin: 10px 0;
+        white-space: pre-wrap;
+      }
+
+      #search-input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+#search-button {
+  padding: 5px 10px;
+  background-color: #7286D3;
+  border: 1px solid #7286D3;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+}
+
+#search-button:hover {
+  background-color: #B9F3FC;
+  border-color: #B9F3FC;
+}
+
+.spinner {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #7286D3;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+    display: none;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+.tab-button:hover {
+  background-color: #B9F3FC;
+}
+
+.tab-button.active:hover {
+  background-color: #B9F3FC;
+}
+
+#send-mail-form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+#send-mail-form input[type="email"], #send-mail-form input[type="text"], #send-mail-form textarea {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#send-mail-form input[type="submit"] {
+  padding: 5px 10px;
+  background-color: #7286D3;
+  border: 1px solid #7286D3;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#send-mail-form input[type="submit"]:hover {
+  background-color: #B9F3FC;
+  border-color: #B9F3FC;
+}
+
+#user-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.tab.accuracy p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+  }
+
+    </style>
+  </head>
+  <body>
+    <h1>Email Spam Filter</h1>
+
+    <div class="tabs-container">
+      <div class="tab-button active" data-tab="ham">Ham</div>
+      <div class="tab-button" data-tab="spam">Spam</div>
+      <div class="tab-button" data-tab="all">All</div>
+      <div class="tab-button" data-tab="accuracy" onclick="showAccuracyPopup()">Accuracy</div>
+      <div class="tab-button" id="send-mail">Send Mail</div>
+      <div id="user-info">{{ user_email }}</div>
+      <div class="tab-button" id="logout">Logout</div>
+    </div>
+    <div>
+  <input type="text" id="search-input" placeholder="Search...">
+  <button id="search-button">Search</button>
+</div>
+    <div class="spinner"></div>
+    <div class="tab-content">
+      <div class="tab ham active" id="ham_messages"></div>
+      <div class="tab spam" id="spam_messages"></div>
+      <div class="tab all" id="all_messages"></div>
+      <div class="tab accuracy" id="accuracy_messages">
+  <p><b>Accuracy:</b> <span id="accuracy"></span></p>
+  <p>The email spam filter uses a Support Vector Machine (SVM) model to classify incoming emails as spam or ham (not spam). SVM is a popular machine learning algorithm that works well with high-dimensional data, such as text-based data. The model is trained on a dataset of labeled emails,as spam and ham, and then applied to new, incoming emails to predict their spam or ham status.</p>
+</div>
+
+      <div id="send-mail-form" class="tab">
+  <form>
+    <label for="to">To:</label><br>
+    <input type="email" id="to" name="to" required><br>
+    <label for="subject">Subject:</label><br>
+    <input type="text" id="subject" name="subject" required><br>
+    <label for="message">Message:</label><br>
+    <textarea id="message" name="message" rows="10" cols="30" required></textarea><br>
+    <input type="submit" value="Send">
+  </form>
+</div>
+
+    </div>
+    <script>
+      $(document).ready(function() {
+
+  // Switch tabs
+  $(".tab-button").click(function() {
+    var tab = $(this).attr("data-tab");
+    $(".tab-button").removeClass("active");
+    $(this).addClass("active");
+    $(".tab").removeClass("active");
+    $("#" + tab + "_messages").addClass("active");
+  });
+
+  $("#send-mail").click(function() {
+  $(".tab-button").removeClass("active");
+  $(this).addClass("active");
+  $(".tab").removeClass("active");
+  $("#send-mail-form").addClass("active");
+});
+
+$("#send-mail-form form").submit(function(event) {
+  event.preventDefault(); // prevent the form from submitting normally
+
+  var to = $("#to").val();
+  var subject = $("#subject").val();
+  var message = $("#message").val();
+  var userEmail = $.trim($('#user-info').text());
+  var from = userEmail;
+
+  if (confirm("Are you sure you want to send this email?")) {
+    // Show the spinner while the email is being sent
+    $(".spinner").show();
+
+    $.ajax({
+      type: "POST",
+      url: "/api/send_email",
+      data: JSON.stringify({
+        to: to,
+        subject: subject,
+        message: message,
+        from: from
+      }),
+      contentType: "application/json; charset=utf-8",
+      success: function(response) {
+        // Hide the spinner
+        $(".spinner").hide();
+
+        // Reset the form and show an alert
+        $("#send-mail-form form")[0].reset();
+        alert("Email sent successfully!");
+      },
+      error: function(xhr, status, error) {
+        // Hide the spinner and show an error message
+        $(".spinner").hide();
+        alert("Failed to send email...");
+      }
+    });
+  }
+});
+
+  $(".spinner").show(); // show the spinner
+
+  // Make an AJAX request to get the emails and update the accuracy tab
+  $.ajax({
+    type: "GET",
+    url: "/api/get_emails",
+    success: function(response) {
+      // Display the ham messages in the first tab
+var ham_messages = response.HAM_MESSAGES;
+var ham_html = "";
+for (var i = 0; i < ham_messages.length; i++) {
+  ham_html += "<div>";
+  ham_html += "<p><b>From:</b> " + ham_messages[i].From + "</p>";
+  ham_html += "<p><b>Subject:</b> " + ham_messages[i].Subject + "</p>";
+  ham_html += "<p><b>Date:</b> " + ham_messages[i].Date + "</p>";
+  ham_html += "<button class='show-message-btn'>Show Message</button>";
+  ham_html += "<div class='message-text hidden'>" + ham_messages[i].Message + "</div>";
+  ham_html += "</div>";
+  ham_html += "<hr>";
+}
+$("#ham_messages").html(ham_html);
+
+      // Display the spam messages in the second tab
+var spam_messages = response.SPAM_MESSAGES;
+var spam_html = "";
+for (var i = 0; i < spam_messages.length; i++) {
+  spam_html += "<div>";
+  spam_html += "<p><b>From:</b> " + spam_messages[i].From + "</p>";
+  spam_html += "<p><b>Subject:</b> " + spam_messages[i].Subject + "</p>";
+  spam_html += "<p><b>Date:</b> " + spam_messages[i].Date + "</p>";
+  spam_html += "<button class='show-message-btn'>Show Message</button>";
+  spam_html += "<div class='message-text hidden'>" + spam_messages[i].Message + "</div>";
+  spam_html += "</div>";
+  spam_html += "<hr>";
+}
+$("#spam_messages").html(spam_html);
+
+      // Display all messages in the third tab
+var all_messages = response.ALL_MESSAGES;
+var all_html = "";
+for (var i = 0; i < all_messages.length; i++) {
+  all_html += "<div>";
+  all_html += "<p><b>From:</b> " + all_messages[i].From + "</p>";
+  all_html += "<p><b>Subject:</b> " + all_messages[i].Subject + "</p>";
+  all_html += "<p><b>Date:</b> " + all_messages[i].Date + "</p>";
+  all_html += "<button class='show-message-btn'>Show Message</button>";
+  all_html += "<div class='message-text hidden'>" + all_messages[i].Message + "</div>";
+  all_html += "</div>";
+  all_html += "<hr>";
+}
+$("#all_messages").html(all_html);
+
+      // Update the accuracy in the accuracy tab
+  var accuracy = response.ACCURACY;
+  $("#accuracy").html(accuracy);
+  $(".spinner").hide(); // hide the spinner
+},
+error: function() {
+  alert("Failed to retrieve emails");
+  $(".spinner").hide(); // hide the spinner
+}
+});
+
+
+// Show or hide the message text when the "Show Message" button is clicked
+$(".tab-content").on("click", ".show-message-btn", function() {
+var message_div = $(this).parent().find(".message-text");
+if (message_div.hasClass("hidden")) {
+message_div.removeClass("hidden");
+$(this).html("Hide Message");
+} else {
+message_div.addClass("hidden");
+$(this).html("Show Message");
+}
+});
+});
+
+// Handle logout
+$("#logout").click(function() {
+window.location.href = "/login";
+});
+
+function showAccuracyPopup() {
+alert("The accuracy is the percentage of correctly classified emails in the dataset.");
+}
+
+document.getElementById("logout").addEventListener("click", logoutConfirmation);
+function logoutConfirmation() {
+  if (confirm("Are you sure you want to log out?")) {
+    // If the user confirms, redirect to the logout URL
+    window.location.href = "/logout";
+  }
+}
+
+// Define a list of profane words
+var profanityList = ["Hi", "Ham", "badword3"];
+
+$("#search-input").on("keyup", function() {
+  var query = $(this).val().toLowerCase();
+  $(".tab.active").find(".message-text").each(function() {
+    var message = $(this).text().toLowerCase();
+    if (message.includes(query) && !containsProfanity(message, profanityList)) {
+      $(this).parent().show();
+    } else {
+      $(this).parent().hide();
+    }
+  });
+});
+
+// Function to check if a message contains any profanity
+function containsProfanity(message, profanityList) {
+  for (var i = 0; i < profanityList.length; i++) {
+    if (message.includes(profanityList[i])) {
+      return true;
+    }
+  }
+  return false;
+}
+</script>
+
+  </body>
+</html>
+
+

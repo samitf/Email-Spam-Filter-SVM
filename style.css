@@ -1,0 +1,114 @@
+/* Reset default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set a default font family and size */
+body {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+/* Set a background color */
+body {
+  background-color: #f2f2f2;
+}
+
+/* Style the header */
+h1 {
+  margin-top: 50px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 32px;
+  font-weight: bold;
+  color: #7286d3;
+}
+
+/* Style the tabs */
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.tab-button {
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  background-color: #7286d3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.tab-button.active {
+  background-color: #b9f3fc;
+  color: #7286d3;
+}
+
+/* Style the tab content */
+.tab-content {
+  background-color: white;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.tab {
+  display: none;
+}
+
+.tab.active {
+  display: block;
+}
+
+/* Style the accuracy tab */
+#accuracy_messages {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#accuracy_messages b {
+  font-weight: bold;
+  color: #7286d3;
+}
+
+/* Style the logout button */
+#logout {
+  margin-left: auto;
+}
+
+#logout:hover {
+  background-color: #b9f3fc;
+  color: #7286d3;
+}
+
+/* Style the SVM model button */
+#model {
+  margin-right: auto;
+}
+
+#model:hover {
+  background-color: #b9f3fc;
+  color: #7286d3;
+}
+
+.message-text.hidden {
+  display: none;
+}
+
+.show-message-btn {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #7286D3;
+  border: 1px solid #7286D3;
+  border-radius: 5px;
+  color: white;
+}

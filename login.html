@@ -1,0 +1,140 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Email Spam Filter</title>
+    <style>
+
+      /* Reset default browser styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Set a default font family and size */
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+      }
+
+      /* Set a background color */
+      body {
+        background-color: #f2f2f2;
+      }
+
+      /* Style the header */
+      h1 {
+        margin-top: 50px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: #7286d3;
+      }
+
+      /* Style the form */
+      form {
+        width: 80%;
+        max-width: 400px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+        font-size: 16px;
+        color: #333;
+        background-color: #f5f5f5;
+      }
+
+      input[type="text"]::placeholder,
+      input[type="password"]::placeholder {
+        color: #999;
+      }
+
+
+      button[type="submit"] {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: none;
+        background-color: #7286d3;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+      }
+
+      button[type="submit"]:hover {
+        background-color: #b9f3fc;
+        color: #7286d3;
+        transform: scale(1.1);
+      }
+
+      button[type="submit"]:active + form {
+        transform: translateY(-50px);
+      }
+
+
+      /* Style error message */
+      p {
+        margin-top: 10px;
+        font-size: 15px;
+        color: #b9f3fc;
+      }
+
+      /* Style the help link */
+      .help-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .help-link a {
+        color: #7286d3;
+        text-decoration: none;
+        font-size: 14px;
+      }
+
+      .help-link a:hover {
+        text-decoration: underline;
+      }
+
+      /* Arrange the button and help link vertically */
+      .form-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div style="height: 50px;"></div>
+    <h1>Email Spam Filter</h1>
+    {% if error %}
+      <p style="color: #7286d3;">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+      <input type="text" name="username" placeholder="Username (e.g. yourname@gmail.com)">
+<input type="password" name="password" placeholder="App Password">
+<div class="form-buttons">
+<button type="submit">Login</button>
+<div class="help-link">
+  <a href="./password">Need help?</a>
+</div>
+</div>
+</form>
+
+  </body>
+</html>
